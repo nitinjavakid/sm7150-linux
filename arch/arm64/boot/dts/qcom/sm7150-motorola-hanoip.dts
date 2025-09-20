@@ -1,0 +1,1174 @@
+// SPDX-License-Identifier: GPL-2.0-only
+
+/dts-v1/;
+
+#include <dt-bindings/arm/qcom,ids.h>
+#include <dt-bindings/firmware/qcom,scm.h>
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/leds/common.h>
+#include <dt-bindings/pinctrl/qcom,pmic-gpio.h>
+#include <dt-bindings/regulator/qcom,rpmh-regulator.h>
+#include <dt-bindings/sound/qcom,q6asm.h>
+#include <dt-bindings/usb/pd.h>
+
+#include "sm7150.dtsi"
+#include "pm6150.dtsi"
+#include "pm6150l.dtsi"
+
+/delete-node/ &tz_mem;
+/delete-node/ &sec_cdsp_mem;
+
+/ {
+	model = "hanoip";
+	compatible = "motorola,hanoip", "qcom,sm7150";
+	chassis-type = "handset";
+
+	qcom,msm-id = <QCOM_ID_SM7150 0>;
+	qcom,board-id = <0x4c 0xb200>;
+
+	aliases {
+		bluetooth0 = &bluetooth;
+		hsuart0 = &uart3;
+		serial0 = &uart8;
+		wifi0 = &wifi;
+	};
+
+	chosen {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		stdout-path = "framebuffer0";
+
+		framebuffer0: framebuffer@9c000000 {
+			compatible = "simple-framebuffer";
+			reg = <0x0 0x9c000000 0x0 (1080 * 2400 * 4)>;
+			width = <1080>;
+			height = <2400>;
+			stride = <(1080 * 4)>;
+			format = "a8r8g8b8";
+			clocks = <&gcc GCC_DISP_HF_AXI_CLK>;
+
+			display = <&panel>;
+
+			status = "okay";
+		};
+	};
+
+	gpio_keys: gpio-keys {
+		compatible = "gpio-keys";
+		pinctrl-names = "default";
+		pinctrl-0 = <&vol_up_n>;
+
+		key-volume-up {
+			label = "Volume Up";
+			linux,code = <KEY_VOLUMEUP>;
+			gpios = <&pm6150l_gpios 2 GPIO_ACTIVE_LOW>;
+			debounce-interval = <15>;
+		};
+	};
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		cont_splash_mem: splash_region@9c000000 {
+			reg = <0x0 0x9c000000 0x0 (1080 * 2400 * 4)>;
+			no-map;
+		};
+
+		ramoops_mem {
+			compatible = "ramoops";
+			reg = <0x00 0xaf000000 0x00 0xbf800>;
+			console-size = <0x40000>;
+			pmsg-size = <0x40000>;
+			record-size = <0x3f800>;
+			no-dump-oops;
+		};
+
+		ramdump_fb_mem: ramdump_fb_region@af000000 {
+			reg = <0x0 0xaf000000 0x0 0x1000000>;
+			no-map;
+		};
+
+		rmtfs_mem: rmtfs {
+			compatible = "qcom,rmtfs-mem";
+			reg = <0 0xfd201000 0 0x200000>;
+			no-map;
+
+			qcom,client-id = <1>;
+			qcom,vmid = <QCOM_SCM_VMID_MSS_MSA>;
+		};
+	};
+
+	vph_pwr: regulator-vph-pwr {
+		compatible = "regulator-fixed";
+
+		regulator-name = "vph_pwr";
+		regulator-min-microvolt = <3700000>;
+		regulator-max-microvolt = <3700000>;
+
+		regulator-always-on;
+		regulator-boot-on;
+	};
+
+	vreg_s3a_0p8: regulator-smpa3 {
+		compatible = "regulator-fixed";
+
+		regulator-name = "vreg_s3a_0p8";
+		regulator-min-microvolt = <800000>;
+		regulator-max-microvolt = <800000>;
+
+		regulator-always-on;
+		vin-supply = <&vph_pwr>;
+	};
+
+	vreg_ibb: regulator-ibb {
+		compatible = "regulator-fixed";
+		regulator-name = "ibb";
+		regulator-min-microvolt = <6000000>;
+		regulator-max-microvolt = <6000000>;
+	};
+
+	vreg_lab: regulator-lab {
+		compatible = "regulator-fixed";
+		regulator-name = "lab";
+		regulator-min-microvolt = <6000000>;
+		regulator-max-microvolt = <6000000>;
+	};
+};
+
+&apps_rsc {
+	regulators-0 {
+		compatible = "qcom,pm6150-rpmh-regulators";
+		qcom,pmic-id = "a";
+
+		vdd-s1-supply = <&vph_pwr>;
+		vdd-s2-supply = <&vph_pwr>;
+		vdd-s3-supply = <&vph_pwr>;
+		vdd-s4-supply = <&vph_pwr>;
+		vdd-s5-supply = <&vph_pwr>;
+
+		vdd-l1-supply = <&vreg_s8c_1p2>;
+		vdd-l2-l3-supply = <&vreg_s4a_1p1>;
+		vdd-l4-l7-l8-supply = <&vreg_s4a_1p1>;
+		vdd-l5-l16-l17-l18-l19-supply = <&vreg_bob>;
+		vdd-l6-supply = <&vreg_s8c_1p2>;
+		vdd-l9-supply = <&vreg_s3a_0p8>;
+		vdd-l10-l14-l15-supply = <&vreg_s5a_2p0>;
+		vdd-l11-l12-l13-supply = <&vreg_s5a_2p0>;
+
+		vreg_s4a_1p1: smps4 {
+			regulator-name = "vreg_s4a_1p1";
+			regulator-min-microvolt = <824000>;
+			regulator-max-microvolt = <1120000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vreg_s5a_2p0: smps5 {
+			regulator-name = "vreg_s5a_2p0";
+			regulator-min-microvolt = <1744000>;
+			regulator-max-microvolt = <2040000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		// Not connected
+		pm6150_l1: ldo1 {
+			regulator-name = "pm6150_l1";
+			regulator-min-microvolt = <1096000>;
+			regulator-max-microvolt = <1304000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+						   RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		// Not connected
+		pm6150_l2: ldo2 {
+			regulator-name = "pm6150_l2";
+			regulator-min-microvolt = <944000>;
+			regulator-max-microvolt = <1056000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+						   RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		// Not connected
+		pm6150_l3: ldo3 {
+			regulator-name = "pm6150_l3";
+			regulator-min-microvolt = <968000>;
+			regulator-max-microvolt = <1064000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+						   RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		// Connected to USB and UFS
+		// To be connected to: sde idp
+		pm6150_l4: ldo4 {
+			regulator-name = "pm6150_l4";
+			regulator-min-microvolt = <824000>;
+			regulator-max-microvolt = <920000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+						   RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		// To be connected to cam
+		pm6150_l5: ldo5 {
+			regulator-name = "pm6150_l5";
+			regulator-min-microvolt = <2600000>;
+			regulator-max-microvolt = <2800000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+						   RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		// To be connected to cam
+		pm6150_l6: ldo6 {
+			regulator-name = "pm6150_l6";
+			regulator-min-microvolt = <1096000>;
+			regulator-max-microvolt = <1304000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+						   RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vdd_wcss_cx:
+		pm6150_l9: ldo9 {
+			regulator-name = "pm6150_l9";
+			regulator-min-microvolt = <624000>;
+			regulator-max-microvolt = <760000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+						   RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		// To be connected to idp and bluetooth
+		vddpx_3:
+		pm6150_l10: ldo10 {
+			regulator-name = "pm6150_l10";
+			regulator-min-microvolt = <1720000>;
+			regulator-max-microvolt = <1832000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+						   RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vdd_qfprom:
+		vdda_usb_hs_1p8:
+		pm6150_l11: ldo11 {
+			regulator-name = "pm6150_l11";
+			regulator-min-microvolt = <1696000>;
+			regulator-max-microvolt = <1984000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+						   RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		sdhc_1_vqmmc:
+		ufs_mem_hc_vccq2:
+		pm6150_l12: ldo12 {
+			regulator-name = "pm6150_l12";
+			regulator-min-microvolt = <1696000>;
+			regulator-max-microvolt = <1952000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+						   RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		// To connect to panel and cam
+		pm6150_l13: ldo13 {
+			regulator-name = "pm6150_l13";
+			regulator-min-microvolt = <1696000>;
+			regulator-max-microvolt = <1904000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+						   RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		pm6150_l14: ldo14 {
+			regulator-name = "pm6150_l14";
+			regulator-min-microvolt = <1720000>;
+			regulator-max-microvolt = <1856000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+						   RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		pm6150_l15: ldo15 {
+			regulator-name = "pm6150_l15";
+			regulator-min-microvolt = <1696000>;
+			regulator-max-microvolt = <1904000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+						   RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		// To be connected to sensor
+		pm6150_l16: ldo16 {
+			regulator-name = "pm6150_l16";
+			regulator-min-microvolt = <2424000>;
+			regulator-max-microvolt = <2976000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+						   RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vdda_usb_hs_3p1:
+		pm6150_l17: ldo17 {
+			regulator-name = "pm6150_l17";
+			regulator-min-microvolt = <3000000>;
+			regulator-max-microvolt = <3232000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+						   RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		pm6150_l18: ldo18 {
+			regulator-min-microvolt = <3000000>;
+			regulator-max-microvolt = <3000000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+		
+		ufs_mem_hc_vcc:
+		pm6150_l19: ldo19 {
+			regulator-name = "pm6150_l19";
+			regulator-min-microvolt = <2944000>;
+			regulator-max-microvolt = <3304000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+						   RPMH_REGULATOR_MODE_HPM>;
+		};
+	};
+
+	regulators-1 {
+		compatible = "qcom,pm6150l-rpmh-regulators";
+		qcom,pmic-id = "c";
+
+		vdd-s1-supply = <&vph_pwr>;
+		vdd-s2-supply = <&vph_pwr>;
+		vdd-s3-supply = <&vph_pwr>;
+		vdd-s4-supply = <&vph_pwr>;
+		vdd-s5-supply = <&vph_pwr>;
+		vdd-s6-supply = <&vph_pwr>;
+		vdd-s7-supply = <&vph_pwr>;
+		vdd-s8-supply = <&vph_pwr>;
+
+		vdd-l2-l3-supply = <&vreg_s8c_1p2>;
+		vdd-l4-l5-l6-supply = <&vreg_bob>;
+		vdd-l7-l11-supply = <&vreg_bob>;
+		vdd-l9-l10-supply = <&vreg_bob>;
+
+		vdd-bob-supply = <&vph_pwr>;
+		vdd-flash-supply = <&vreg_bob>;
+		vdd-rgb-supply = <&vreg_bob>;
+
+		// Not connected
+		pm6150l_s1: smps1 {
+			regulator-name = "pm6150l_s1";
+			regulator-min-microvolt = <1000000>;
+			regulator-max-microvolt = <1200000>;
+		};
+
+		vreg_s8c_1p2:
+		pm6150l_s8: smps8 {
+			regulator-name = "pm6150l_s8";
+			regulator-min-microvolt = <1120000>;
+			regulator-max-microvolt = <1408000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		pm6150l_l1: ldo1 {
+			regulator-min-microvolt = <1616000>;
+			regulator-max-microvolt = <1984000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+						   RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		pm6150l_l2: ldo2 {
+			regulator-min-microvolt = <1200000>;
+			regulator-max-microvolt = <1352000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+						   RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		// To be connected to cam
+		ufs_mem_vdda_pll:
+		pm6150l_l3: ldo3 {
+			regulator-min-microvolt = <1144000>;
+			regulator-max-microvolt = <1256000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+						   RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		sdhc_2_vqmmc:
+		pm6150l_l6: ldo6 {
+			regulator-min-microvolt = <1648000>;
+			regulator-max-microvolt = <3100000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+						   RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vreg_l8c_1p8: ldo8 {
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1900000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		sdhc_2_vmmc:
+		pm6150l_l9: ldo9 {
+			regulator-min-microvolt = <2950000>;
+			regulator-max-microvolt = <3312000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+						   RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		pm6150l_l10: ldo10 {
+			regulator-min-microvolt = <3200000>;
+			regulator-max-microvolt = <3312000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+						   RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		pm6150l_l11: ldo11 {
+			regulator-min-microvolt = <2950000>;
+			regulator-max-microvolt = <3400000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+						   RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vreg_bob: bob {
+			regulator-name = "vreg_bob";
+			regulator-min-microvolt = <3296000>;
+			regulator-max-microvolt = <3960000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_AUTO>;
+			regulator-allow-bypass;
+		};
+	};
+};
+
+/*
+
+&camss {
+	vdda-supply = <&vdda_csi0_1p25>;
+	status = "okay";
+};
+
+&cci0 {
+	status = "okay";
+};
+
+&cci1 {
+	status = "okay";
+};
+*/
+
+&gpi_dma0 {
+	status = "okay";
+};
+
+&gpi_dma1 {
+	status = "okay";
+};
+
+&dispcc {
+	status = "okay";
+};
+
+/*
+&i2c0 {
+	status = "okay";
+};
+*/
+
+/*
+&i2c2 {
+	clock-frequency = <1000000>;
+	status = "okay";
+};
+
+&i2c7 {
+	status = "okay";
+};
+
+&i2c9 {
+	status = "okay";
+};
+
+&i2c2 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	nxp: nfc@28 {
+		compatible = "nxp,nxp-nci-i2c";
+
+		reg = <0x28>;
+
+		interrupt-parent = <&tlmm>;
+		interrupts = <37 IRQ_TYPE_LEVEL_HIGH>;
+
+		enable-gpios = <&tlmm 12 GPIO_ACTIVE_HIGH>;
+		firmware-gpios = <&tlmm 36 GPIO_ACTIVE_HIGH>;
+
+		pinctrl-names = "default", "sleep";
+		pinctrl-0 = <&nfc_default>;
+		pinctrl-1 = <&nfc_sleep>;
+	};
+};
+
+*/
+
+&ipa {
+	memory-region = <&ipa_fw_mem>;
+	firmware-name = "qcom/hanoip/ipa_fws.mdt";
+	status = "okay";
+};
+
+&mdss {
+	status = "okay";
+};
+
+&mdss_dsi0 {
+	vdda-supply = <&pm6150l_l3>;
+	status = "okay";
+
+	panel: panel@0 {
+		reg = <0>;
+
+		vddio-supply = <&pm6150_l13>;
+		vdd3p3-supply = <&pm6150_l18>;
+
+		reset-gpios = <&pm6150l_gpios 9 GPIO_ACTIVE_LOW>;
+
+		pinctrl-0 = <&panel_reset_pin &panel_te_pin>;
+		pinctrl-names = "default";
+
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&mdss_dsi0_out>;
+			};
+		};
+	};
+};
+
+&mdss_dsi0_out {
+	data-lanes = <0 1 2 3>;
+	remote-endpoint = <&panel_in>;
+	status = "okay";
+};
+
+&mdss_dsi0_phy {
+	vdds-supply = <&pm6150_l4>;
+	status = "okay";
+};
+
+/*
+
+&pm6150_qgauge {
+	monitored-battery = <&battery>;
+	status = "okay";
+};
+
+*/
+
+&pm6150_resin {
+	linux,code = <KEY_VOLUMEDOWN>;
+	status = "okay";
+};
+
+&pm6150_rtc {
+	status = "okay";
+};
+
+&pm6150_typec {
+	vdd-vbus-supply = <&pm6150_vbus>;
+	vdd-pdphy-supply = <&vdda_usb_hs_3p1>;
+	status = "okay";
+
+	connector {
+		compatible = "usb-c-connector";
+
+		power-role = "source";
+		data-role = "dual";
+		self-powered;
+
+		source-pdos = <PDO_FIXED(5000, 3000, PDO_FIXED_DUAL_ROLE |
+			       PDO_FIXED_USB_COMM | PDO_FIXED_DATA_SWAP)>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+				pm6150_role_switch_in: endpoint {
+					remote-endpoint = <&usb_1_dwc3_hs>;
+				};
+			};
+		};
+	};
+};
+
+&pm6150_vbus {
+	regulator-min-microamp = <500000>;
+	regulator-max-microamp = <3000000>;
+	status = "okay";
+};
+
+&pm6150l_flash {
+	status = "okay";
+
+	led-1 {
+		function = LED_FUNCTION_FLASH;
+		color = <LED_COLOR_ID_WHITE>;
+		led-sources = <1>;
+		led-max-microamp = <150000>;
+		flash-max-microamp = <1000000>;
+		flash-max-timeout-us = <1280000>;
+	};
+};
+
+&pm6150l_gpios {
+	vol_up_n: vol-up-n-state {
+		pins = "gpio2";
+		function = PMIC_GPIO_FUNC_NORMAL;
+		input-enable;
+		bias-pull-up;
+		power-source = <0>;
+	};
+
+	panel_reset_pin: panel-reset-state {
+		pins = "gpio9";
+		function = PMIC_GPIO_FUNC_FUNC1;
+		qcom,drive-strength = <PMIC_GPIO_STRENGTH_MED>;
+		bias-disable;
+		output-low;
+		power-source = <1>;
+	};
+};
+
+&pm6150l_lpg {
+	led@1 {
+		reg = <1>;
+		color = <LED_COLOR_ID_WHITE>;
+		function = LED_FUNCTION_STATUS;
+	};
+};
+
+&pm6150l_wled {
+	qcom,cabc;
+	qcom,cabc-sel = <1>;
+	qcom,num-strings = <3>;
+};
+
+&qfprom {
+	vcc-supply = <&vdd_qfprom>;
+};
+
+&qup_uart3_cts {
+	bias-pull-down;
+};
+
+&qup_uart3_rts {
+	drive-strength = <2>;
+	bias-disable;
+};
+
+&qup_uart3_tx {
+	drive-strength = <2>;
+	bias-disable;
+};
+
+&qup_uart3_rx {
+	bias-pull-up;
+};
+
+&qup_uart8_tx {
+	drive-strength = <2>;
+	bias-disable;
+};
+
+&qup_uart8_rx {
+	drive-strength = <2>;
+	bias-pull-up;
+};
+
+&qupv3_id_0 {
+	status = "okay";
+};
+
+&qupv3_id_1 {
+	status = "okay";
+};
+/*
+&remoteproc_adsp {
+	status = "okay";
+};
+
+&remoteproc_cdsp {
+	status = "okay";
+};
+
+&remoteproc_mpss {
+	status = "okay";
+};
+*/
+
+&sdhc_2 {
+	cd-gpios = <&tlmm 69 GPIO_ACTIVE_HIGH>;
+	cd-inverted;
+
+	vmmc-supply = <&sdhc_2_vmmc>;
+	vqmmc-supply = <&sdhc_2_vqmmc>;
+
+	pinctrl-names = "active", "sleep";
+	pinctrl-0 = <&sdc2_on>;
+	pinctrl-1 = <&sdc2_off>;
+
+	status = "okay";
+};
+
+&tlmm {
+	gpio-reserved-ranges = <0 4>, <59 4>;
+
+	gpio-line-names = "NFC_ESE_SPI_MISO", /* GPIO_0 */
+			  "NFC_ESE_SPI_MOSI",
+			  "NFC_ESE_SPI_CLK",
+			  "NFC_ESE_SPI_CS_N",
+			  "NC",
+			  "NC",
+			  "TS_I2C_SDA",
+			  "TS_I2C_SCL",
+			  "TS_RESET_N",
+			  "TS_INT_N",
+			  "MDP_VSYNC_P", /* GPIO_10 */
+			  "NC",
+			  "NFC_ENABLE_SPKR_PA_RST",
+			  "CAMF_MCLK0",
+			  "CAMU_MCLK1",
+			  "CAMW_MCLK2",
+			  "CAMT_MCLK3",
+			  "CCI_I2C_SDA0",
+			  "CCI_I2C_SCL0",
+			  "CCI_I2C_SDA1",
+			  "CCI_I2C_SCL1", /* GPIO_20 */
+			  "NC",
+			  "FL_STROBE_TRIG",
+			  "CAMF_RSTN",
+			  "CAMT_RSTN",
+			  "CAMU_RSTN",
+			  "CAMW_RSTN",
+			  "CCI_I2C_SDA2",
+			  "CCI_I2C_SCL2",
+			  "CAMU_LDO_EN",
+			  "NC",  /* GPIO_30 */
+			  "NFC_LABBCLK3_EN",
+			  "ERR_INT_N",
+			  "AUDIO_SWITCH_EN",
+			  "NFC_I2C_SDA",
+			  "NFC_I2C_SCL",
+			  "NFC_DWL_REQ",
+			  "NFC_IRQ",
+			  "BT_UART_CTS",
+			  "BT_UART_RFR",
+			  "BT_UART_TX", /* GPIO_40 */
+			  "BT_UART_RX",
+			  "LCD_ID_DET1",
+			  "MOTOR_FAULT",
+			  "BLSP2_UART_TX",
+			  "BLSP2_UART_RX",
+			  "APPS_I2C_SDA",
+			  "APPS_I2C_SCL",
+			  "FORCED_USB_BOOT",
+			  "SPKR_I2S_BCK",
+			  "SPKR_I2S_WS", /* GPIO_50 */
+			  "SPKR_I2S_DOUT",
+			  "SPKR_I2S_DIN1",
+			  "SPKR_I2C_SDA",
+			  "SPKR_I2C_SCL",
+			  "MOTOR_DIR",
+			  "SPKR_INT",
+			  "CAMF_LDO_EN",
+			  "NC",
+			  "FOD_SPI_MISO",
+			  "FOD_SPI_MOSI", /* GPIO_60 */
+			  "FOD_SPI_SCLK",
+			  "FOD_SPI_CS_N",
+			  "FOD_LDO_EN",
+			  "DIGITAL_HALL1_RSTN",
+			  "FOD_RST",
+			  "MOTOR_M1",
+			  "SPKR_PA_RST_NFC_ENABLE",
+			  "TS_TA",
+			  "FOD_INT",
+			  "RFFE6_CLK", /* GPIO_70 */
+			  "RFFE6_DATA",
+			  "FM_GPIO",
+			  "WLAN_SW_CTRL",
+			  "GRFC_4",
+			  "UIM2_DATA",
+			  "UIM2_CLK",
+			  "UIM2_RESET",
+			  "UIM2_PRESENT",
+			  "UIM1_DATA",
+			  "UIM1_CLK", /* GPIO_80 */
+			  "UIM1_RESET",
+			  "UIM1_PRESENT",
+			  "GRFC_8",
+			  "GRFC_9",
+			  "WMSS_RESET_N",
+			  "ACCEL_INT",
+			  "GYRO_INT",
+			  "MOTOR_SLEEP",
+			  "ALS_INT_N",
+			  "MOTOR_EN", /* GPIO_90 */
+			  "MOTOR_M0",
+			  "RFFE4_CLK",
+			  "DIGITAL_HALL1_INT",
+			  "NC",
+			  "GRFC_3",
+			  "QLINK_REQUEST",
+			  "QLINK_ENABLE",
+			  "GRFC_2",
+			  "NC",
+			  "GRFC_1", /* GPIO_100 */
+			  "RFFE3_DATA",
+			  "RFFE3_CLK",
+			  "RFFE4_DATA",
+			  "USB_PHY_PS",
+			  "RFFE5_DATA",
+			  "RFFE5_CLK",
+			  "NC",
+			  "WLAN_COEX_UART_TXD",
+			  "WLAN_COEX_UART_RXD",
+			  "NC", /* GPIO_110 */
+			  "NC",
+			  "RFFE1_DATA",
+			  "RFFE1_CLK";
+
+	mclk3_active: mclk3-active {
+		pins = "gpio16";
+		function = "cam_mclk";
+		drive-strength = <2>;
+		bias-disable;
+	};
+
+	panel_te_pin: panel-te-state {
+		pins = "gpio10";
+		function = "mdp_vsync";
+		drive-strength = <2>;
+		bias-pull-down;
+	};
+
+	qup_uart3_sleep: qup-uart3-sleep-state {
+		cts-pins {
+			pins = "gpio38";
+			function = "gpio";
+			bias-pull-down;
+		};
+
+		rts-pins {
+			pins = "gpio39";
+			function = "gpio";
+			bias-pull-down;
+		};
+
+		tx-pins {
+			pins = "gpio40";
+			function = "gpio";
+			bias-pull-up;
+		};
+
+		rx-pins {
+			pins = "gpio41";
+			function = "gpio";
+			bias-pull-up;
+		};
+	};
+
+	sdc1_on: sdc1-on-state {
+		clk-pins {
+			pins = "sdc1_clk";
+			bias-disable;
+			drive-strength = <16>;
+		};
+
+		cmd-pins {
+			pins = "sdc1_cmd";
+			bias-pull-up;
+			drive-strength = <10>;
+		};
+
+		data-pins {
+			pins = "sdc1_data";
+			bias-pull-up;
+			drive-strength = <10>;
+		};
+
+		rclk-pins {
+			pins = "sdc1_rclk";
+			bias-pull-down;
+		};
+	};
+
+	sdc1_off: sdc1-off-state {
+		clk-pins {
+			pins = "sdc1_clk";
+			bias-disable;
+			drive-strength = <2>;
+		};
+
+		cmd-pins {
+			pins = "sdc1_cmd";
+			bias-pull-up;
+			drive-strength = <2>;
+		};
+
+		data-pins {
+			pins = "sdc1_data";
+			bias-pull-up;
+			drive-strength = <2>;
+		};
+
+		rclk-pins {
+			pins = "sdc1_rclk";
+			bias-pull-down;
+		};
+	};
+
+	sdc2_on: sdc2-on-state {
+		clk-pins {
+			pins = "sdc2_clk";
+			bias-disable;
+			drive-strength = <16>;
+		};
+
+		cmd-pins {
+			pins = "sdc2_cmd";
+			bias-pull-up;
+			drive-strength = <10>;
+		};
+
+		data-pins {
+			pins = "sdc2_data";
+			bias-pull-up;
+			drive-strength = <10>;
+		};
+
+		sd-cd-pins {
+			pins = "gpio69";
+			function = "gpio";
+			bias-pull-up;
+			drive-strength = <2>;
+		};
+	};
+
+	sdc2_off: sdc2-off-state {
+		clk-pins {
+			pins = "sdc2_clk";
+			bias-disable;
+			drive-strength = <2>;
+		};
+
+		cmd-pins {
+			pins = "sdc2_cmd";
+			bias-pull-up;
+			drive-strength = <2>;
+		};
+
+		data-pins {
+			pins = "sdc2_data";
+			bias-pull-up;
+			drive-strength = <2>;
+		};
+
+		sd-cd-pins {
+			pins = "gpio69";
+			function = "gpio";
+			bias-pull-up;
+			drive-strength = <2>;
+		};
+	};
+};
+
+&uart3 {
+	/delete-property/interrupts;
+	interrupts-extended = <&intc GIC_SPI 604 IRQ_TYPE_LEVEL_HIGH>,
+			      <&tlmm 41 IRQ_TYPE_EDGE_FALLING>;
+
+	pinctrl-names = "default", "sleep";
+	pinctrl-1 = <&qup_uart3_sleep>;
+	status = "okay";
+
+	bluetooth: bluetooth {
+		compatible = "qcom,wcn3990-bt";
+
+		vddio-supply = <&pm6150_l10>;
+		vddxo-supply = <&pm6150l_l1>;
+		vddrf-supply = <&pm6150l_l2>;
+		vddch0-supply = <&pm6150l_l10>;
+		max-speed = <3200000>;
+	};
+};
+
+&uart8 {
+	status = "okay";
+};
+
+&ufs_mem_hc {
+	reset-gpios = <&tlmm 119 GPIO_ACTIVE_LOW>;
+
+	vcc-supply = <&ufs_mem_hc_vcc>;
+	vcc-max-microamp = <600000>;
+	vccq2-supply = <&ufs_mem_hc_vccq2>;
+	vccq2-max-microamp = <600000>;
+	status = "okay";
+};
+
+&ufs_mem_phy {
+	vdda-phy-supply = <&pm6150_l4>;
+	vdda-pll-supply = <&ufs_mem_vdda_pll>;
+	vdda-phy-max-microamp = <62900>;
+	vdda-pll-max-microamp = <18300>;
+	status = "okay";
+};
+
+
+&usb_1 {
+	qcom,select-utmi-as-pipe-clk;
+	status = "okay";
+};
+
+&usb_1_dwc3 {
+	dr_mode = "otg";
+	usb-role-switch;
+	maximum-speed = "high-speed";
+	phys = <&usb_1_hsphy>;
+	phy-names = "usb2-phy";
+};
+
+&usb_1_dwc3_hs {
+	remote-endpoint = <&pm6150_role_switch_in>;
+};
+
+&usb_1_hsphy {
+	vdd-supply = <&pm6150_l4>;
+	vdda-pll-supply = <&vdda_usb_hs_1p8>;
+	vdda-phy-dpdm-supply = <&vdda_usb_hs_3p1>;
+	status = "okay";
+};
+
+&wifi {
+	vdd-0.8-cx-mx-supply = <&vdd_wcss_cx>;
+	vdd-1.8-xo-supply = <&pm6150l_l1>;
+	vdd-1.3-rfa-supply = <&pm6150l_l2>;
+	vdd-3.3-ch0-supply = <&pm6150l_l10>;
+	vdd-3.3-ch1-supply = <&pm6150l_l11>;
+
+	qcom,vdd-cx-mx-config = <640000 640000>;
+
+	firmware-name = "qcom/hanoip/wlanmdsp.mbn";
+	status = "okay";
+};
+
+// Customs
+
+&spmi_bus {
+	/delete-property/interrupts-extended;
+
+	interrupts = <GIC_SPI 481 IRQ_TYPE_LEVEL_HIGH>;
+};
+
+&lpass_tlmm {
+	gpio-line-names = "SWR_TX_CLK", /* GPIO_0 */
+			  "SWR_TX_DATA1",
+			  "SWR_TX_DATA2",
+			  "SWR_RX_CLK",
+			  "SWR_RX_DATA1",
+			  "SWR_RX_DATA2",
+			  "WCD9375_RST_N",
+			  "NC",
+			  "NC",
+			  "NC",
+			  "NC", /* GPIO_10 */
+			  "NC",
+			  "BT_FM_SLIMBUS_DATA",
+			  "BT_FM_SLIMBUS_CLK";
+};
+
+&pm6150_gpios {
+	gpio-line-names = "NC", /* GPIO_1 */
+			  "NC",
+			  "SMB_STAT",
+			  "NC",
+			  "SLB",
+			  "NC",
+			  "WCSS_PWR_REQ",
+			  "NC",
+			  "FORCED_USB_BOOT",
+			  "NC";  /* GPIO_10 */
+};
+
+&pm6150_vib {
+	status = "okay";
+
+	qcom,vib-ldo-volt-uv = <3000000>;
+	qcom,disable-overdrive;
+};
+
+&remoteproc_adsp {
+	status = "okay";
+	firmware-name = "qcom/hanoip/adsp.mdt";
+};
+
+&remoteproc_cdsp {
+	status = "okay";
+	firmware-name = "qcom/hanoip/cdsp.mdt";
+};
+
+&remoteproc_mpss {
+	status = "okay";
+	firmware-name = "qcom/hanoip/modem.mdt";
+};
+
+&gpu {
+	zap-shader {
+		firmware-name = "qcom/hanoip/a615_zap.mdt";
+	};
+};
+
+&venus {
+	firmware-name = "qcom/hanoip/venus.mdt";
+	status = "okay";
+};
