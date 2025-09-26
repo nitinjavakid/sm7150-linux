@@ -15,7 +15,6 @@
 #include "pm6150.dtsi"
 #include "pm6150l.dtsi"
 
-/delete-node/ &tz_mem;
 /delete-node/ &sec_cdsp_mem;
 
 / {
@@ -27,7 +26,6 @@
 	qcom,board-id = <0x4c 0xb200>;
 
 	aliases {
-		bluetooth0 = &bluetooth;
 		hsuart0 = &uart3;
 		serial0 = &uart8;
 		wifi0 = &wifi;
@@ -163,14 +161,12 @@
 			regulator-name = "vreg_s4a_1p1";
 			regulator-min-microvolt = <824000>;
 			regulator-max-microvolt = <1120000>;
-			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
 		};
 
 		vreg_s5a_2p0: smps5 {
 			regulator-name = "vreg_s5a_2p0";
 			regulator-min-microvolt = <1744000>;
 			regulator-max-microvolt = <2040000>;
-			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
 		};
 
 		// Not connected
@@ -179,9 +175,6 @@
 			regulator-min-microvolt = <1096000>;
 			regulator-max-microvolt = <1304000>;
 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
-			regulator-allow-set-load;
-			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
-						   RPMH_REGULATOR_MODE_HPM>;
 		};
 
 		// Not connected
@@ -190,9 +183,6 @@
 			regulator-min-microvolt = <944000>;
 			regulator-max-microvolt = <1056000>;
 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
-			regulator-allow-set-load;
-			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
-						   RPMH_REGULATOR_MODE_HPM>;
 		};
 
 		// Not connected
@@ -201,9 +191,6 @@
 			regulator-min-microvolt = <968000>;
 			regulator-max-microvolt = <1064000>;
 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
-			regulator-allow-set-load;
-			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
-						   RPMH_REGULATOR_MODE_HPM>;
 		};
 
 		// Connected to USB and UFS
@@ -224,9 +211,6 @@
 			regulator-min-microvolt = <2600000>;
 			regulator-max-microvolt = <2800000>;
 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
-			regulator-allow-set-load;
-			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
-						   RPMH_REGULATOR_MODE_HPM>;
 		};
 
 		// To be connected to cam
@@ -235,9 +219,6 @@
 			regulator-min-microvolt = <1096000>;
 			regulator-max-microvolt = <1304000>;
 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
-			regulator-allow-set-load;
-			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
-						   RPMH_REGULATOR_MODE_HPM>;
 		};
 
 		vdd_wcss_cx:
@@ -246,9 +227,6 @@
 			regulator-min-microvolt = <624000>;
 			regulator-max-microvolt = <760000>;
 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
-			regulator-allow-set-load;
-			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
-						   RPMH_REGULATOR_MODE_HPM>;
 		};
 
 		// To be connected to idp and bluetooth
@@ -258,9 +236,6 @@
 			regulator-min-microvolt = <1720000>;
 			regulator-max-microvolt = <1832000>;
 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
-			regulator-allow-set-load;
-			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
-						   RPMH_REGULATOR_MODE_HPM>;
 		};
 
 		vdd_qfprom:
@@ -270,9 +245,6 @@
 			regulator-min-microvolt = <1696000>;
 			regulator-max-microvolt = <1984000>;
 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
-			regulator-allow-set-load;
-			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
-						   RPMH_REGULATOR_MODE_HPM>;
 		};
 
 		sdhc_1_vqmmc:
@@ -282,9 +254,6 @@
 			regulator-min-microvolt = <1696000>;
 			regulator-max-microvolt = <1952000>;
 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
-			regulator-allow-set-load;
-			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
-						   RPMH_REGULATOR_MODE_HPM>;
 		};
 
 		// To connect to panel and cam
@@ -293,9 +262,6 @@
 			regulator-min-microvolt = <1696000>;
 			regulator-max-microvolt = <1904000>;
 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
-			regulator-allow-set-load;
-			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
-						   RPMH_REGULATOR_MODE_HPM>;
 		};
 
 		pm6150_l14: ldo14 {
@@ -303,9 +269,6 @@
 			regulator-min-microvolt = <1720000>;
 			regulator-max-microvolt = <1856000>;
 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
-			regulator-allow-set-load;
-			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
-						   RPMH_REGULATOR_MODE_HPM>;
 		};
 
 		pm6150_l15: ldo15 {
@@ -313,9 +276,6 @@
 			regulator-min-microvolt = <1696000>;
 			regulator-max-microvolt = <1904000>;
 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
-			regulator-allow-set-load;
-			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
-						   RPMH_REGULATOR_MODE_HPM>;
 		};
 
 		// To be connected to sensor
@@ -324,9 +284,6 @@
 			regulator-min-microvolt = <2424000>;
 			regulator-max-microvolt = <2976000>;
 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
-			regulator-allow-set-load;
-			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
-						   RPMH_REGULATOR_MODE_HPM>;
 		};
 
 		vdda_usb_hs_3p1:
@@ -335,9 +292,6 @@
 			regulator-min-microvolt = <3000000>;
 			regulator-max-microvolt = <3232000>;
 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
-			regulator-allow-set-load;
-			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
-						   RPMH_REGULATOR_MODE_HPM>;
 		};
 
 		pm6150_l18: ldo18 {
@@ -392,25 +346,18 @@
 			regulator-name = "pm6150l_s8";
 			regulator-min-microvolt = <1120000>;
 			regulator-max-microvolt = <1408000>;
-			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
 		};
 
 		pm6150l_l1: ldo1 {
 			regulator-min-microvolt = <1616000>;
 			regulator-max-microvolt = <1984000>;
 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
-			regulator-allow-set-load;
-			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
-						   RPMH_REGULATOR_MODE_HPM>;
 		};
 
 		pm6150l_l2: ldo2 {
 			regulator-min-microvolt = <1200000>;
 			regulator-max-microvolt = <1352000>;
 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
-			regulator-allow-set-load;
-			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
-						   RPMH_REGULATOR_MODE_HPM>;
 		};
 
 		// To be connected to cam
@@ -424,6 +371,20 @@
 						   RPMH_REGULATOR_MODE_HPM>;
 		};
 
+		vddpx_5:
+		pm6150l_l4: ldo4 {
+			regulator-min-microvolt = <1648000>;
+			regulator-max-microvolt = <2950000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vddpx_6:
+		pm6150l_l5: ldo5 {
+			regulator-min-microvolt = <1648000>;
+			regulator-max-microvolt = <2950000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
 		sdhc_2_vqmmc:
 		pm6150l_l6: ldo6 {
 			regulator-min-microvolt = <1648000>;
@@ -432,6 +393,12 @@
 			regulator-allow-set-load;
 			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
 						   RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		pm6150l_l7: ldo7 {
+			regulator-min-microvolt = <3000000>;
+			regulator-max-microvolt = <3312000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
 		};
 
 		vreg_l8c_1p8: ldo8 {
@@ -454,18 +421,12 @@
 			regulator-min-microvolt = <3200000>;
 			regulator-max-microvolt = <3312000>;
 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
-			regulator-allow-set-load;
-			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
-						   RPMH_REGULATOR_MODE_HPM>;
 		};
 
 		pm6150l_l11: ldo11 {
 			regulator-min-microvolt = <2950000>;
 			regulator-max-microvolt = <3400000>;
 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
-			regulator-allow-set-load;
-			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
-						   RPMH_REGULATOR_MODE_HPM>;
 		};
 
 		vreg_bob: bob {
@@ -512,11 +473,13 @@
 };
 */
 
-/*
+
 &i2c2 {
 	clock-frequency = <1000000>;
 	status = "okay";
 };
+
+/*
 
 &i2c7 {
 	status = "okay";
@@ -690,6 +653,7 @@
 	qcom,cabc;
 	qcom,cabc-sel = <1>;
 	qcom,num-strings = <3>;
+	status = "okay";
 };
 
 &qfprom {
@@ -731,19 +695,6 @@
 &qupv3_id_1 {
 	status = "okay";
 };
-/*
-&remoteproc_adsp {
-	status = "okay";
-};
-
-&remoteproc_cdsp {
-	status = "okay";
-};
-
-&remoteproc_mpss {
-	status = "okay";
-};
-*/
 
 &sdhc_2 {
 	cd-gpios = <&tlmm 69 GPIO_ACTIVE_HIGH>;
@@ -1022,6 +973,7 @@
 	};
 };
 
+/*
 &uart3 {
 	/delete-property/interrupts;
 	interrupts-extended = <&intc GIC_SPI 604 IRQ_TYPE_LEVEL_HIGH>,
@@ -1041,6 +993,8 @@
 		max-speed = <3200000>;
 	};
 };
+
+*/
 
 &uart8 {
 	status = "okay";
@@ -1095,10 +1049,8 @@
 	vdd-1.3-rfa-supply = <&pm6150l_l2>;
 	vdd-3.3-ch0-supply = <&pm6150l_l10>;
 	vdd-3.3-ch1-supply = <&pm6150l_l11>;
+	qcom,msa-fixed-perm;
 
-	qcom,vdd-cx-mx-config = <640000 640000>;
-
-	firmware-name = "qcom/hanoip/wlanmdsp.mbn";
 	status = "okay";
 };
 
