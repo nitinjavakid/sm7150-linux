@@ -15,8 +15,6 @@
 #include "pm6150.dtsi"
 #include "pm6150l.dtsi"
 
-/delete-node/ &sec_cdsp_mem;
-
 / {
 	model = "hanoip";
 	compatible = "motorola,hanoip", "qcom,sm7150";
@@ -47,7 +45,7 @@
 			format = "a8r8g8b8";
 			clocks = <&gcc GCC_DISP_HF_AXI_CLK>;
 
-			display = <&panel>;
+			// display = <&panel>;
 
 			status = "okay";
 		};
@@ -83,11 +81,6 @@
 			pmsg-size = <0x40000>;
 			record-size = <0x3f800>;
 			no-dump-oops;
-		};
-
-		ramdump_fb_mem: ramdump_fb_region@af000000 {
-			reg = <0x0 0xaf000000 0x0 0x1000000>;
-			no-map;
 		};
 
 		rmtfs_mem: rmtfs {
@@ -468,6 +461,7 @@
 };
 
 /*
+
 &i2c0 {
 	status = "okay";
 };
@@ -518,6 +512,8 @@
 	status = "okay";
 };
 
+/*
+
 &mdss {
 	status = "okay";
 };
@@ -555,6 +551,8 @@
 	vdds-supply = <&pm6150_l4>;
 	status = "okay";
 };
+
+*/
 
 /*
 
@@ -649,12 +647,16 @@
 	};
 };
 
+/*
+
 &pm6150l_wled {
 	qcom,cabc;
 	qcom,cabc-sel = <1>;
 	qcom,num-strings = <3>;
 	status = "okay";
 };
+
+*/
 
 &qfprom {
 	vcc-supply = <&vdd_qfprom>;
@@ -973,7 +975,6 @@
 	};
 };
 
-/*
 &uart3 {
 	/delete-property/interrupts;
 	interrupts-extended = <&intc GIC_SPI 604 IRQ_TYPE_LEVEL_HIGH>,
@@ -993,8 +994,6 @@
 		max-speed = <3200000>;
 	};
 };
-
-*/
 
 &uart8 {
 	status = "okay";
@@ -1049,7 +1048,6 @@
 	vdd-1.3-rfa-supply = <&pm6150l_l2>;
 	vdd-3.3-ch0-supply = <&pm6150l_l10>;
 	vdd-3.3-ch1-supply = <&pm6150l_l11>;
-	qcom,msa-fixed-perm;
 
 	status = "okay";
 };
@@ -1061,6 +1059,7 @@
 
 	interrupts = <GIC_SPI 481 IRQ_TYPE_LEVEL_HIGH>;
 };
+
 
 &lpass_tlmm {
 	gpio-line-names = "SWR_TX_CLK", /* GPIO_0 */
@@ -1122,5 +1121,5 @@
 
 &venus {
 	firmware-name = "qcom/hanoip/venus.mdt";
-	status = "okay";
+	//status = "okay";
 };
