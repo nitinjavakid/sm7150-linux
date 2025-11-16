@@ -74,14 +74,17 @@
 			no-map;
 		};
 
+/*
 		ramoops_mem {
 			compatible = "ramoops";
+			no-map;
 			reg = <0x00 0xaf000000 0x00 0xbf800>;
 			console-size = <0x40000>;
 			pmsg-size = <0x40000>;
 			record-size = <0x3f800>;
 			no-dump-oops;
 		};
+*/
 
 		rmtfs_mem: rmtfs {
 			compatible = "qcom,rmtfs-mem";
@@ -506,11 +509,14 @@
 
 */
 
+/*
+
 &ipa {
 	memory-region = <&ipa_fw_mem>;
-	firmware-name = "qcom/hanoip/ipa_fws.mdt";
+	firmware-name = "postmarketos/ipa_fws.mdt";
 	status = "okay";
 };
+*/
 
 /*
 
@@ -1042,6 +1048,7 @@
 	status = "okay";
 };
 
+/*
 &wifi {
 	vdd-0.8-cx-mx-supply = <&vdd_wcss_cx>;
 	vdd-1.8-xo-supply = <&pm6150l_l1>;
@@ -1051,6 +1058,7 @@
 
 	status = "okay";
 };
+*/
 
 // Customs
 
@@ -1098,6 +1106,8 @@
 	qcom,disable-overdrive;
 };
 
+/*
+
 &remoteproc_adsp {
 	status = "okay";
 	firmware-name = "qcom/hanoip/adsp.mdt";
@@ -1113,6 +1123,10 @@
 	firmware-name = "qcom/hanoip/modem.mdt";
 };
 
+*/
+
+/*
+
 &gpu {
 	zap-shader {
 		firmware-name = "qcom/hanoip/a615_zap.mdt";
@@ -1123,3 +1137,5 @@
 	firmware-name = "qcom/hanoip/venus.mdt";
 	//status = "okay";
 };
+
+*/
