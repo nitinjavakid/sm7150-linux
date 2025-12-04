@@ -29,6 +29,13 @@
 		wifi0 = &wifi;
 	};
 
+	battery: battery {
+		compatible = "simple-battery";
+
+		voltage-min-design-microvolt = <3400000>;
+		voltage-max-design-microvolt = <4400000>;
+	};
+
 	chosen {
 		#address-cells = <2>;
 		#size-cells = <2>;
@@ -45,7 +52,7 @@
 			format = "a8r8g8b8";
 			clocks = <&gcc GCC_DISP_HF_AXI_CLK>;
 
-			// display = <&panel>;
+			display = <&panel>;
 
 			status = "okay";
 		};
@@ -92,7 +99,6 @@
 			no-map;
 
 			qcom,client-id = <1>;
-			qcom,vmid = <QCOM_SCM_VMID_MSS_MSA>;
 		};
 	};
 
@@ -463,8 +469,8 @@
 	status = "okay";
 };
 
-/*
 
+/*
 &i2c0 {
 	status = "okay";
 };
@@ -476,8 +482,6 @@
 	status = "okay";
 };
 
-/*
-
 &i2c7 {
 	status = "okay";
 };
@@ -485,6 +489,8 @@
 &i2c9 {
 	status = "okay";
 };
+
+/*
 
 &i2c2 {
 	clock-frequency = <100000>;
@@ -509,16 +515,11 @@
 
 */
 
-/*
-
 &ipa {
 	memory-region = <&ipa_fw_mem>;
 	firmware-name = "postmarketos/ipa_fws.mdt";
 	status = "okay";
 };
-*/
-
-/*
 
 &mdss {
 	status = "okay";
@@ -556,18 +557,12 @@
 &mdss_dsi0_phy {
 	vdds-supply = <&pm6150_l4>;
 	status = "okay";
-};
-
-*/
-
-/*
+}; 
 
 &pm6150_qgauge {
 	monitored-battery = <&battery>;
 	status = "okay";
 };
-
-*/
 
 &pm6150_resin {
 	linux,code = <KEY_VOLUMEDOWN>;
@@ -653,7 +648,6 @@
 	};
 };
 
-/*
 
 &pm6150l_wled {
 	qcom,cabc;
@@ -662,7 +656,6 @@
 	status = "okay";
 };
 
-*/
 
 &qfprom {
 	vcc-supply = <&vdd_qfprom>;
@@ -1048,7 +1041,6 @@
 	status = "okay";
 };
 
-/*
 &wifi {
 	vdd-0.8-cx-mx-supply = <&vdd_wcss_cx>;
 	vdd-1.8-xo-supply = <&pm6150l_l1>;
@@ -1058,7 +1050,6 @@
 
 	status = "okay";
 };
-*/
 
 // Customs
 
@@ -1106,36 +1097,28 @@
 	qcom,disable-overdrive;
 };
 
-/*
-
 &remoteproc_adsp {
 	status = "okay";
-	firmware-name = "qcom/hanoip/adsp.mdt";
+	firmware-name = "postmarketos/adsp.mdt";
 };
 
 &remoteproc_cdsp {
 	status = "okay";
-	firmware-name = "qcom/hanoip/cdsp.mdt";
+	firmware-name = "postmarketos/cdsp.mdt";
 };
 
 &remoteproc_mpss {
 	status = "okay";
-	firmware-name = "qcom/hanoip/modem.mdt";
+	firmware-name = "postmarketos/modem.mdt";
 };
-
-*/
-
-/*
 
 &gpu {
 	zap-shader {
-		firmware-name = "qcom/hanoip/a615_zap.mdt";
+		firmware-name = "postmarketos/a615_zap.mdt";
 	};
 };
 
 &venus {
-	firmware-name = "qcom/hanoip/venus.mdt";
-	//status = "okay";
+	firmware-name = "postmarketos/venus.mdt";
+	status = "okay";
 };
-
-*/
